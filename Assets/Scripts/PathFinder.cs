@@ -58,7 +58,14 @@ public class PathFinder
             // You just need to fill code inside this foreach only
             foreach (Tile nextTile in current.tile.Adjacents)
             {
-                
+                double gCost = HeuristicsDistance(current.tile, nextTile);
+                if ((current.tile.indexX - nextTile.indexX) != 0 && (current.tile.indexY - nextTile.indexY) != 0)
+                {
+                    gCost = Math.Sqrt(((gCost / 2) * (gCost / 2)) * 2);
+                }
+                gCost += current.costSoFar;
+                double fCost = gCost + HeuristicsDistance(nextTile, goal);
+                TODOList.Add(new Node(nextTile, fCost, current, gCost));
             }
         }
         return new Queue<Tile>(); // Returns an empty Path if no path is found
@@ -69,6 +76,7 @@ public class PathFinder
     // BONUS TASK (Required the for Honors Contract Students)
     public Queue<Tile> FindPathAStarEvadeEnemy(Tile start, Tile goal)
     {
+        List<Enemy> enemyList = new List<Enemy>((Enemy[])GameObject.FindObjectsByType(typeof(Enemy), FindObjectsSortMode.None));
         TODOList = new List<Node>();
         DoneList = new List<Node>();
 
@@ -92,7 +100,21 @@ public class PathFinder
             // Just increase the F cost of the enemy tile and the tiles around it by a certain ammount (say 30)
             foreach (Tile nextTile in current.tile.Adjacents)
             {
-
+                double gCost = HeuristicsDistance(current.tile, nextTile);
+                if ((current.tile.indexX - nextTile.indexX) != 0 && (current.tile.indexY - nextTile.indexY) != 0)
+                {
+                    gCost = Math.Sqrt(((gCost / 2) * (gCost / 2)) * 2);
+                }
+                gCost += current.costSoFar;
+                double fCost = gCost + HeuristicsDistance(nextTile, goal);
+                foreach (Enemy enemy in enemyList)
+                {
+                    if (enemy.GetComponent<Enemy>().currentTile == nextTile || nextTile.Adjacents.Contains(enemy.GetComponent<Enemy>().currentTile))
+                    {
+                        fCost += 30;
+                    }
+                }
+                TODOList.Add(new Node(nextTile, fCost, current, gCost));
             }
         }
         return new Queue<Tile>(); // Returns an empty Path
